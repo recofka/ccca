@@ -1,7 +1,9 @@
-import IAccountDAO from "./AccountDAO";
+export interface IGetAccountAccountDAO {
+  getById(accountId: string): Promise<any>;
+}
 
 export default class GetAccount {
-  constructor(readonly accountDAO: IAccountDAO) {}
+  constructor(readonly accountDAO: IGetAccountAccountDAO) {}
 
   async execute(accountId: string) {
     const account = await this.accountDAO.getById(accountId);

@@ -1,6 +1,10 @@
 import pgp from "pg-promise";
+import { ISignupAccountDAO } from "./Signup";
+import { IGetAccountAccountDAO } from "./GetAccount";
 
-export default interface IAccountDAO {
+export default interface IAccountDAO
+  extends ISignupAccountDAO,
+    IGetAccountAccountDAO {
   save(account: any): Promise<void>;
   getByEmail(email: string): Promise<any>;
   getById(accountId: string): Promise<any>;

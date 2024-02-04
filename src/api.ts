@@ -3,17 +3,17 @@ import Signup from "./Signup";
 import AccountDAODatabase from "./AccountDAO";
 import RideDAODatabase from "./RideDAO";
 import GetAccount from "./GetAccount";
-import crypto from "crypto";
-import pgp from "pg-promise";
 import RequestRide from "./RequestRide";
 import GetRide from "./GetRide";
+import { MailerGateway } from "./MailerGateway";
 
 const app = express();
 app.use(express.json());
 
 app.post("/signup", async function (req, res) {
   const accountDAO = new AccountDAODatabase();
-  const signup = new Signup(accountDAO);
+  const mailerGateway = new MailerGateway();
+  const signup = new Signup(accountDAO, mailerGateway);
   const output = await signup.execute(req.body);
   res.json(output);
 });

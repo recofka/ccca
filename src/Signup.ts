@@ -1,10 +1,17 @@
 import crypto from "crypto";
 import { validateCpf } from "./validateCpf";
-import IAccountDAO from "./AccountDAO";
-import MailerGateway from "./MailerGateway";
+import IMailerGateway from "./MailerGateway";
+
+export interface ISignupAccountDAO {
+  save(account: any): Promise<void>;
+  getByEmail(email: string): Promise<any>;
+}
 
 export default class Signup {
-  constructor(readonly accountDAO: IAccountDAO) {}
+  constructor(
+    readonly accountDAO: ISignupAccountDAO,
+    readonly mailerGateway: IMailerGateway
+  ) {}
 
   async execute(input: any) {
     input.accountId = crypto.randomUUID();
@@ -18,8 +25,7 @@ export default class Signup {
       throw new Error("Invalid car plate");
     await this.accountDAO.save(input);
 
-    const mailerGateway = new MailerGateway();
-    mailerGateway.send(
+    await this.mailerGateway.send(
       "Welcome",
       input.email,
       "Use this link to confirm your account"
