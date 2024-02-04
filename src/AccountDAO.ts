@@ -1,13 +1,11 @@
 import pgp from "pg-promise";
 
-// Port
 export default interface IAccountDAO {
   save(account: any): Promise<void>;
   getByEmail(email: string): Promise<any>;
   getById(accountId: string): Promise<any>;
 }
 
-// Adapter Database
 export default class AccountDAODatabase implements IAccountDAO {
   async save(account: any) {
     const connection = pgp()(

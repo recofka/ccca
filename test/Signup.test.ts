@@ -14,7 +14,7 @@ beforeEach(() => {
   getAccount = new GetAccount(accountDAO);
 });
 
-describe("Signup function", () => {
+fdescribe("Signup function", () => {
   test.each(["97456321558", "71428793860", "87748248800"])(
     "it should create a passenger account",
     async () => {
@@ -34,7 +34,7 @@ describe("Signup function", () => {
       expect(outputGetAccount.name).toBe(mockInputSignup.name);
       expect(outputGetAccount.email).toBe(mockInputSignup.email);
       expect(outputGetAccount.cpf).toBe(mockInputSignup.cpf);
-      expect(outputGetAccount.is_passenger).toBe(mockInputSignup.isPassenger);
+      expect(outputGetAccount.is_passenger).toBe(true);
     }
   );
 
@@ -131,7 +131,7 @@ describe("Signup function", () => {
     );
   });
 
-  test("Deve criar a conta de um passageiro stub", async function () {
+  test("it should create a stub passenger account", async function () {
     const mockInputSignup = {
       name: "John Doe",
       email: `john.doe${Math.random()}@gmail.com`,
@@ -158,7 +158,7 @@ describe("Signup function", () => {
     getByIdStub.restore();
   });
 
-  test.only("Deve criar a conta de um passageiro spy", async function () {
+  test("it should create a spy passenger account", async function () {
     const mockInputSignup = {
       name: "John Doe",
       email: `john.doe${Math.random()}@gmail.com`,
@@ -187,7 +187,7 @@ describe("Signup function", () => {
     sendSpy.restore();
   });
 
-  test("Deve criar a conta de um passageiro mock", async function () {
+  test("it should create a mock passenger account", async function () {
     const mockInputSignup = {
       name: "John Doe",
       email: `john.doe${Math.random()}@gmail.com`,
