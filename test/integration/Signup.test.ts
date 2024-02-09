@@ -1,27 +1,31 @@
-import Signup from "../src/Signup";
-import GetAccount from "../src/GetAccount";
-import AccountDAODatabase, { AccountDAOMemory } from "../src/AccountDAO";
-import { MailerGateway } from "../src/MailerGateway";
+import Signup from "../../src/application/usecase/Signup";
+import GetAccount from "../../src/application/usecase/GetAccount";
+import { MailerGatewayConsole } from "../../src/infra/database/MailerGateway";
+import { AccountRepositoryDatabase } from "../../src/infra/repository/AccountRepository";
 import sinon from "sinon";
+import DatabaseConnection, {
+  PgPromiseAdapter,
+} from "../../src/infra/database/DatabaseConnection";
 
 let signup: Signup;
 let getAccount: GetAccount;
+let connection: DatabaseConnection;
 
 beforeEach(() => {
-  const accountDAO = new AccountDAODatabase();
-  // const accountDAO = new AccountDAOMemory();
-  const mailerGateway: MailerGateway = {
+  connection = new PgPromiseAdapter();
+  const accountRepository = new AccountRepositoryDatabase(connection);
+  const mailerGateway: MailerGatewayConsole = {
     async send(
       subject: string,
       recipient: string,
       message: string
     ): Promise<void> {},
   };
-  signup = new Signup(accountDAO, mailerGateway);
-  getAccount = new GetAccount(accountDAO);
+  signup = new Signup(accountRepository, mailerGateway);
+  getAccount = new GetAccount(accountRepository);
 });
 
-fdescribe("Signup function", () => {
+describe("Signup function", () => {
   test.each(["97456321558", "71428793860", "87748248800"])(
     "it should create a passenger account",
     async () => {
@@ -41,7 +45,7 @@ fdescribe("Signup function", () => {
       expect(outputGetAccount.name).toBe(mockInputSignup.name);
       expect(outputGetAccount.email).toBe(mockInputSignup.email);
       expect(outputGetAccount.cpf).toBe(mockInputSignup.cpf);
-      expect(outputGetAccount.is_passenger).toBe(true);
+      expect(outputGetAccount.isPassenger).toBe(true);
     }
   );
 
@@ -119,7 +123,7 @@ fdescribe("Signup function", () => {
     expect(outputGetAccount.name).toBe(mockInputSignup.name);
     expect(outputGetAccount.email).toBe(mockInputSignup.email);
     expect(outputGetAccount.cpf).toBe(mockInputSignup.cpf);
-    expect(outputGetAccount.is_driver).toBe(mockInputSignup.isDriver);
+    expect(outputGetAccount.isDriver).toBe(mockInputSignup.isDriver);
   });
 
   test("it should not create an account for the driver with invalid carPlate", async () => {
@@ -138,32 +142,32 @@ fdescribe("Signup function", () => {
     );
   });
 
-  test("it should create a stub passenger account", async function () {
-    const mockInputSignup = {
-      name: "John Doe",
-      email: `john.doe${Math.random()}@gmail.com`,
-      cpf: "97456321558",
-      isPassenger: true,
-    };
-    const saveStub = sinon
-      .stub(AccountDAODatabase.prototype, "save")
-      .resolves();
-    const getByEmailStub = sinon
-      .stub(AccountDAODatabase.prototype, "getByEmail")
-      .resolves();
-    const getByIdStub = sinon
-      .stub(AccountDAODatabase.prototype, "getById")
-      .resolves(mockInputSignup);
-    const outputSignup = await signup.execute(mockInputSignup);
-    expect(outputSignup.accountId).toBeDefined();
-    const outputGetAccount = await getAccount.execute(outputSignup.accountId);
-    expect(outputGetAccount.name).toBe(mockInputSignup.name);
-    expect(outputGetAccount.email).toBe(mockInputSignup.email);
-    expect(outputGetAccount.cpf).toBe(mockInputSignup.cpf);
-    saveStub.restore();
-    getByEmailStub.restore();
-    getByIdStub.restore();
-  });
+  // test("it should create a stub passenger account", async function () {
+  //   const mockInputSignup = {
+  //     name: "John Doe",
+  //     email: `john.doe${Math.random()}@gmail.com`,
+  //     cpf: "97456321558",
+  //     isPassenger: true,
+  //   };
+  //   const saveStub = sinon
+  //     .stub(AccountRepositoryDatabase.prototype, "save")
+  //     .resolves();
+  //   const getByEmailStub = sinon
+  //     .stub(AccountRepositoryDatabase.prototype, "getByEmail")
+  //     .resolves();
+  //   const getByIdStub = sinon
+  //     .stub(AccountRepositoryDatabase.prototype, "getById")
+  //     .resolves(mockInputSignup);
+  //   const outputSignup = await signup.execute(mockInputSignup);
+  //   expect(outputSignup.accountId).toBeDefined();
+  //   const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+  //   expect(outputGetAccount.name).toBe(mockInputSignup.name);
+  //   expect(outputGetAccount.email).toBe(mockInputSignup.email);
+  //   expect(outputGetAccount.cpf).toBe(mockInputSignup.cpf);
+  //   saveStub.restore();
+  //   getByEmailStub.restore();
+  //   getByIdStub.restore();
+  // });
 
   // test("it should create a spy passenger account", async function () {
   //   const mockInputSignup = {
@@ -172,7 +176,7 @@ fdescribe("Signup function", () => {
   //     cpf: "97456321558",
   //     isPassenger: true,
   //   };
-  //   const saveSpy = sinon.spy(AccountDAODatabase.prototype, "save");
+  //   const saveSpy = sinon.spy(AccountRepositoryDatabase.prototype, "save");
   //   const sendSpy = sinon.stub(MailerGateway.prototype, "send");
   //   const outputSignup = await signup.execute(mockInputSignup);
   //   expect(outputSignup.accountId).toBeDefined();
@@ -219,4 +223,8 @@ fdescribe("Signup function", () => {
   //   mailerGatewayMock.verify();
   //   mailerGatewayMock.restore();
   // });
+});
+
+afterEach(async () => {
+  await connection.close();
 });

@@ -1,7 +1,7 @@
 export default interface IMailerGateway {
   send(subject: string, recipient: string, message: string): Promise<void>;
 }
-export class MailerGateway implements IMailerGateway {
+export class MailerGatewayConsole implements IMailerGateway {
   async send(subject: string, recipient: string, message: string) {
     console.log(subject, recipient, message);
   }

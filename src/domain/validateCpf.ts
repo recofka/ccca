@@ -34,3 +34,15 @@ function calculateDigit(cpf: string, factor: number) {
 function extractDigit(cpf: string) {
   return cpf.slice(9);
 }
+
+export function isInvalidName(name: string) {
+  return !name.match(/[a-zA-Z] [a-zA-Z]+/);
+}
+
+export function isInvalidEmail(email: string) {
+  return !email.match(/^(.+)@(.+)$/);
+}
+
+export function isInvalidCarPlate(carPlate: string) {
+  return !carPlate.match(/[A-Z]{3}[0-9]{4}/);
+}
