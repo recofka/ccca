@@ -1,27 +1,32 @@
-import Ride from "../../domain/Ride";
+import Ride from "../../domain/entity/Ride";
 import DatabaseConnection from "../database/DatabaseConnection";
 
-export default interface IRideRepository {
+export default interface RideRepository {
   save(ride: Ride): Promise<void>;
   get(rideId: string): Promise<Ride | undefined>;
   getActiveRidesByPassengerId(passengerId: string): Promise<Ride[]>;
+  update(ride: Ride): Promise<void>;
 }
 
-export class RideRepositoryDatabase implements IRideRepository {
+// Adapter Database
+export class RideRepositoryDatabase implements RideRepository {
   constructor(readonly connection: DatabaseConnection) {}
 
   async save(ride: Ride) {
     await this.connection.query(
-      "insert into cccat15.ride (ride_id, passenger_id, from_lat, from_long, to_lat, to_long, status, date) values ($1, $2, $3, $4, $5, $6, $7, $8)",
+      "insert into cccat15.ride (ride_id, passenger_id, from_lat, from_long, to_lat, to_long, status, date, last_lat, last_long, distance) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)",
       [
         ride.rideId,
         ride.passengerId,
-        ride.fromLat,
-        ride.fromLong,
-        ride.toLat,
-        ride.toLong,
-        ride.status,
+        ride.getFromLat(),
+        ride.getFromLong(),
+        ride.getToLat(),
+        ride.getToLong(),
+        ride.getStatus(),
         ride.date,
+        ride.getLastLat(),
+        ride.getLastLong(),
+        ride.getDistance(),
       ]
     );
   }
@@ -40,7 +45,11 @@ export class RideRepositoryDatabase implements IRideRepository {
       parseFloat(ride.to_lat),
       parseFloat(ride.to_long),
       ride.status,
-      ride.date
+      ride.date,
+      parseFloat(ride.last_lat),
+      parseFloat(ride.last_long),
+      parseFloat(ride.distance),
+      ride.driver_id
     );
   }
 
@@ -60,10 +69,28 @@ export class RideRepositoryDatabase implements IRideRepository {
           parseFloat(activeRideData.to_lat),
           parseFloat(activeRideData.to_long),
           activeRideData.status,
-          activeRideData.date
+          activeRideData.date,
+          parseFloat(activeRideData.last_lat),
+          parseFloat(activeRideData.last_long),
+          parseFloat(activeRideData.distance),
+          activeRideData.driver_id
         )
       );
     }
     return activeRides;
+  }
+
+  async update(ride: Ride) {
+    await this.connection.query(
+      "update cccat15.ride set status = $1, driver_id = $2, last_lat = $3, last_long = $4, distance = $5 where ride_id = $6",
+      [
+        ride.getStatus(),
+        ride.getDriverId(),
+        ride.getLastLat(),
+        ride.getLastLong(),
+        ride.getDistance(),
+        ride.rideId,
+      ]
+    );
   }
 }

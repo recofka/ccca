@@ -4,7 +4,7 @@ axios.defaults.validateStatus = function () {
   return true;
 };
 
-test("it should create a passenger account", async function () {
+test("It should create a passenger account", async function () {
   const input = {
     name: "John Doe",
     email: `john.doe${Math.random()}@gmail.com`,
@@ -21,13 +21,13 @@ test("it should create a passenger account", async function () {
     `http://localhost:3000/accounts/${outputSignup.accountId}`
   );
   const outputGetAccount = responseGetAccount.data;
-  expect(outputGetAccount.name).toBe(input.name);
-  expect(outputGetAccount.email).toBe(input.email);
-  expect(outputGetAccount.cpf).toBe(input.cpf);
-  //   expect(outputGetAccount.is_passenger).toBe(input.isPassenger);
+  expect(outputGetAccount.name.value).toBe(input.name);
+  expect(outputGetAccount.email.value).toBe(input.email);
+  expect(outputGetAccount.cpf.value).toBe(input.cpf);
+  expect(outputGetAccount.isPassenger).toBe(input.isPassenger);
 });
 
-test("it should request a ride", async function () {
+test("It should request a ride", async function () {
   const inputSignup = {
     name: "John Doe",
     email: `john.doe${Math.random()}@gmail.com`,
@@ -41,10 +41,10 @@ test("it should request a ride", async function () {
   const outputSignup = responseSignup.data;
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
-    fromLat: -27.7154887029113,
-    fromLong: -48.50264094019843,
+    fromLat: -27.584905257808835,
+    fromLong: -48.545022195325124,
     toLat: -27.496887588317275,
-    toLong: -48.45490814818396,
+    toLong: -48.522234807851476,
   };
   const responseRequestRide = await axios.post(
     "http://localhost:3000/request_ride",
@@ -52,21 +52,20 @@ test("it should request a ride", async function () {
   );
   const outputRequestRide = responseRequestRide.data;
   expect(outputRequestRide.rideId).toBeDefined();
-
-  // const responseGetRide = await axios.get(
-  //   `http://localhost:3000/rides/${outputRequestRide.rideId}`
-  // );
-  // const outputGetRide = responseGetRide.data;
-
-  // expect(responseRequestRide.status).toBe(200);
-  // expect(outputGetRide.passengerId).toBe(outputSignup.passengerId);
-  // expect(outputGetRide.rideId).toBe(outputRequestRide.ride_id);
-  // expect(outputGetRide.from_lat).toBe("-27.7154887029113");
-  // expect(outputGetRide.status).toBe("requested");
-  // expect(outputGetRide.date).toBeDefined();
+  const responseGetRide = await axios.get(
+    `http://localhost:3000/rides/${outputRequestRide.rideId}`
+  );
+  const outputGetRide = responseGetRide.data;
+  expect(responseRequestRide.status).toBe(200);
+  expect(outputGetRide.passengerName).toBe("John Doe");
+  expect(outputGetRide.passengerId).toBe(inputRequestRide.passengerId);
+  expect(outputGetRide.rideId).toBe(outputRequestRide.rideId);
+  expect(outputGetRide.fromLat).toBe(-27.584905257808835);
+  expect(outputGetRide.status).toBe("requested");
+  expect(outputGetRide.date).toBeDefined();
 });
 
-test("it should not request a ride if user is not a passenger", async function () {
+test("It should not request a ride if user is not a passenger", async function () {
   const inputSignup = {
     name: "John Doe",
     email: `john.doe${Math.random()}@gmail.com`,
@@ -82,10 +81,10 @@ test("it should not request a ride if user is not a passenger", async function (
   const outputSignup = responseSignup.data;
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
-    fromLat: -27.7154887029113,
-    fromLong: -48.50264094019843,
+    fromLat: -27.584905257808835,
+    fromLong: -48.545022195325124,
     toLat: -27.496887588317275,
-    toLong: -48.45490814818396,
+    toLong: -48.522234807851476,
   };
   const responseRequestRide = await axios.post(
     "http://localhost:3000/request_ride",
@@ -96,7 +95,7 @@ test("it should not request a ride if user is not a passenger", async function (
   expect(outputRequestRide.message).toBe("Account is not from a passenger");
 });
 
-test("it should not request a ride if the passenger has another active ride ongoing", async function () {
+test("It should not request a ride if the passenger has another active ride ongoing", async function () {
   const inputSignup = {
     name: "John Doe",
     email: `john.doe${Math.random()}@gmail.com`,
@@ -110,10 +109,10 @@ test("it should not request a ride if the passenger has another active ride ongo
   const outputSignup = responseSignup.data;
   const inputRequestRide = {
     passengerId: outputSignup.accountId,
-    fromLat: -27.7154887029113,
-    fromLong: -48.50264094019843,
+    fromLat: -27.584905257808835,
+    fromLong: -48.545022195325124,
     toLat: -27.496887588317275,
-    toLong: -48.45490814818396,
+    toLong: -48.522234807851476,
   };
   await axios.post("http://localhost:3000/request_ride", inputRequestRide);
   const responseRequestRide = await axios.post(

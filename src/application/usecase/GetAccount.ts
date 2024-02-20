@@ -1,8 +1,7 @@
-import { transform } from "typescript";
-import IAccountRepository from "../../infra/repository/AccountRepository";
+import AccountRepository from "../../infra/repository/AccountRepository";
 
 export default class GetAccount {
-  constructor(readonly accountRepository: IAccountRepository) {}
+  constructor(readonly accountRepository: AccountRepository) {}
 
   async execute(accountId: string) {
     const account = await this.accountRepository.getById(accountId);

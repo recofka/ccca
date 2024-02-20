@@ -1,11 +1,11 @@
-import Ride from "../../domain/Ride";
-import IAccountRepository from "../../infra/repository/AccountRepository";
-import IRideRepository from "../../infra/repository/RideRepository";
+import AccountRepository from "../../infra/repository/AccountRepository";
+import RideRepository from "../../infra/repository/RideRepository";
+import Ride from "../../domain/entity/Ride";
 
 export default class RequestRide {
   constructor(
-    readonly rideRepository: IRideRepository,
-    readonly accountRepository: IAccountRepository
+    readonly rideRepository: RideRepository,
+    readonly accountRepository: AccountRepository
   ) {}
 
   async execute(input: Input): Promise<Output> {

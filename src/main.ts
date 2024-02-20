@@ -7,7 +7,7 @@ import RequestRide from "./application/usecase/RequestRide";
 import { RideRepositoryDatabase } from "./infra/repository/RideRepository";
 import Signup from "./application/usecase/Signup";
 import { PgPromiseAdapter } from "./infra/database/DatabaseConnection";
-import { MailerGatewayConsole } from "./infra/database/MailerGateway";
+import { MailerGatewayConsole } from "./infra/gateway/MailerGateway";
 
 const httpServer = new ExpressAdapter();
 const connection = new PgPromiseAdapter();

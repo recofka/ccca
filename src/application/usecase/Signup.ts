@@ -1,19 +1,19 @@
-import IMailerGateway from "../../infra/database/MailerGateway";
-import Account from "../../domain/Account";
-import IAccountRepository from "../../infra/repository/AccountRepository";
+import MailerGateway from "../../infra/gateway/MailerGateway";
+import Account from "../../domain/entity/Account";
+import AccountRepository from "../../infra/repository/AccountRepository";
 
+// Use case
 export default class Signup {
   constructor(
-    readonly accountRepository: IAccountRepository,
-    readonly mailerGateway: IMailerGateway
+    readonly accountRepository: AccountRepository,
+    readonly mailerGateway: MailerGateway
   ) {}
 
   async execute(input: any) {
     const existingAccount = await this.accountRepository.getByEmail(
       input.email
     );
-    if (existingAccount)
-      throw new Error("An account already exists with this email address");
+    if (existingAccount) throw new Error("Account already exists");
     const account = Account.create(
       input.name,
       input.email,
@@ -25,10 +25,9 @@ export default class Signup {
     await this.accountRepository.save(account);
     await this.mailerGateway.send(
       "Welcome",
-      account.email,
+      account.getEmail(),
       "Use this link to confirm your account"
     );
-
     return {
       accountId: account.accountId,
     };

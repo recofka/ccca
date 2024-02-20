@@ -1,21 +1,28 @@
 import crypto from "crypto";
-import { validateCpf } from "./validateCpf";
+import CarPlate from "../vo/CarPlate";
+import Cpf from "../vo/Cpf";
+import Email from "../vo/Email";
+import Name from "../vo/Name";
 
 export default class Account {
+  private name: Name;
+  private email: Email;
+  private cpf: Cpf;
+  private carPlate?: CarPlate;
+
   private constructor(
     readonly accountId: string,
-    readonly name: string,
-    readonly email: string,
-    readonly cpf: string,
+    name: string,
+    email: string,
+    cpf: string,
     readonly isPassenger: boolean,
     readonly isDriver: boolean,
-    readonly carPlate?: string
+    carPlate?: string
   ) {
-    if (this.isInvalidName(name)) throw new Error("Invalid name");
-    if (this.isInvalidEmail(email)) throw new Error("Invalid email");
-    if (!validateCpf(cpf)) throw new Error("Invalid cpf");
-    if (isDriver && carPlate && this.isInvalidCarPlate(carPlate))
-      throw new Error("Invalid car plate");
+    this.name = new Name(name);
+    this.email = new Email(email);
+    this.cpf = new Cpf(cpf);
+    if (isDriver && carPlate) this.carPlate = new CarPlate(carPlate);
   }
 
   static create(
@@ -58,15 +65,23 @@ export default class Account {
     );
   }
 
-  private isInvalidName(name: string) {
-    return !name.match(/[a-zA-Z] [a-zA-Z]+/);
+  setName(name: string) {
+    this.name = new Name(name);
   }
 
-  private isInvalidEmail(email: string) {
-    return !email.match(/^(.+)@(.+)$/);
+  getName() {
+    return this.name.getValue();
   }
 
-  private isInvalidCarPlate(carPlate: string) {
-    return !carPlate.match(/[A-Z]{3}[0-9]{4}/);
+  getEmail() {
+    return this.email.getValue();
+  }
+
+  getCpf() {
+    return this.cpf.getValue();
+  }
+
+  getCarPlate() {
+    return this.carPlate?.getValue();
   }
 }
